@@ -1,0 +1,35 @@
+[root@hadoop1 bin]# cat xcall 
+#!/bin/bash
+
+pcount=$#
+if (( pcount<1)) ; then
+    echo no args;
+    exit;
+fi
+
+echo --------------------localhost------------------------
+$@
+
+for(( host=2 ; host <6 ; host=host+1 )) ; do
+    echo --------------------hadoop$host------------------------
+    ssh hadoop$host $@ 
+done
+[root@hadoop1 bin]# cat xsync 
+#!/bin/bash
+
+pcount=$#
+if (( pcount<1)) ; then
+    echo no args;
+    exit;
+fi
+
+p1=$1;
+fname=`basename $p1`
+
+pdir=`cd $(dirname $p1) ; pwd`
+
+cuser=`whoami`
+for(( host=1 ; host <6 ; host=host+1 )) ; do
+    echo --------------------hadoop$host------------------------
+    rsync -rvl $pdir/$fname $cuser@hadoop$host:$pdir
+done
